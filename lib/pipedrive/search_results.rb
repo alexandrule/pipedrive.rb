@@ -1,5 +1,5 @@
 module Pipedrive
-  class SearchResult < Base
+  class SearchResults < Base
     def search(params = {})
       make_api_call(:get, params.merge(entity_hard_path: 'searchResults'))
     end

@@ -14,5 +14,11 @@ module Pipedrive
       return to_enum(:find_by_name, params) unless block_given?
       follow_pagination(:make_api_call, [:get, 'find'], params) { |item| yield item }
     end
+
+    def deals(*args)
+      params = args.extract_options!
+      id = params.delete(:id)
+      make_api_call(:get, params.merge(entity_hard_path: "persons/#{id}/deals"))
+    end
   end
 end
