@@ -22,6 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency('faraday')
   gem.add_dependency('faraday_middleware')
   gem.add_dependency('hashie', '>= 3.0')
+  gem.add_dependency('oauth2', '>= 1.4.2')
   gem.add_development_dependency('bundler')
   gem.add_development_dependency('rake', '< 12')
   gem.add_development_dependency('rspec', '>= 3.0')

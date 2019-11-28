@@ -1,12 +1,14 @@
 module Pipedrive
   class Base
+    attr_reader :api_token
+
     def initialize(api_token = ::Pipedrive.api_token)
       fail 'api_token should be set' unless api_token.present?
       @api_token = api_token
     end
 
     def connection
-      self.class.connection.dup
+      self.class.connection(api_token).dup
     end
 
     def make_api_call(*args)
@@ -26,12 +28,11 @@ module Pipedrive
     end
 
     def build_url(args, fields_to_select = nil)
-      url = "/v1/#{entity_name}"
+      url = "/#{entity_name}"
       url << "/#{args[1]}" if args[1]
       if fields_to_select.is_a?(::Array) && fields_to_select.size > 0
         url << ":(#{fields_to_select.join(',')})"
       end
-      url << "?api_token=#{@api_token}"
       url
     end
 
@@ -64,19 +65,20 @@ module Pipedrive
     end
 
     class << self
-      def faraday_options
+      def faraday_options(access_token)
         {
-          url:     'https://api.pipedrive.com',
+          url:     'https://api-proxy.pipedrive.com',
           headers: {
             accept:     'application/json',
-            user_agent: ::Pipedrive.user_agent
+            user_agent: ::Pipedrive.user_agent,
+            authorization: "Bearer #{access_token}"
           }
         }
       end
 
       # This method smells of :reek:TooManyStatements
-      def connection # :nodoc
-        @connection ||= Faraday.new(faraday_options) do |conn|
+      def connection(access_token = nil) # :nodoc
+        @connection ||= Faraday.new(faraday_options(access_token)) do |conn|
           conn.request :url_encoded
           conn.response :mashify
           conn.response :json, content_type: /\bjson$/

@@ -9,24 +9,39 @@ Pipedrive.com API wrapper
 
 Add this line to your application's Gemfile:
 
-    gem 'pipedrive.rb'
+    gem 'pipedrive.rb', git: 'https://github.com/nononoy/pipedrive.rb.git'
 
 And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install pipedrive.rb
-
 ## Usage
 
+### Oauth2
+```ruby
+ client = Pipedrive::Client.new(
+   client_id: 'app client_id', 
+   client_secret: 'app client_secret', 
+   redirect_uri: 'app redirect_uri', 
+   debug: false
+ )
+
+  # get auth code
+  client.authorize_url 
+  
+  # get access_token  
+  access_token = client.fetch_access_token(code)
+  
+  # refresh access_token  
+  access_token = client.fetch_refresh_token(refresh_token)
+
+```
 ### Person
 
 You need initialize Person client:
 
 ```ruby
-client = ::Pipedrive::Person.new('api_token')
+client = ::Pipedrive::Person.new(access_token)
 ```
 
 You can get person's JSON data:
@@ -84,7 +99,7 @@ If you need use only one pipedrive account for whole application, then you can c
 
 ```ruby
 Pipedrive.setup do |n|
-  n.api_token = ENV['PIPEDRIVE_API_TOKEN']
+  n.api_token = ENV['PIPEDRIVE_ACCESS_TOKEN']
 end
 ```
 
