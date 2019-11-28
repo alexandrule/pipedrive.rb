@@ -8,7 +8,7 @@ module Pipedrive
     end
 
     def connection
-      self.class.connection(api_token).dup
+      @_connection ||= Connection.new(api_token).setup
     end
 
     def make_api_call(*args)
@@ -33,8 +33,7 @@ module Pipedrive
 
     def build_url(args, options = {})
       fields_to_select = options.fetch(:fields_to_select) { nil }
-      entity_path = options.fetch(:entity_hard_path) { entity_name }
-
+      entity_path = options[:entity_hard_path] || entity_name
       url = "/#{entity_path}"
       url << "/#{args[1]}" if args[1]
       if fields_to_select.is_a?(::Array) && fields_to_select.size > 0
@@ -69,31 +68,6 @@ module Pipedrive
 
     def entity_name
       self.class.name.split('::')[-1].downcase.pluralize
-    end
-
-    class << self
-      def faraday_options(access_token)
-        {
-          url:     'https://api-proxy.pipedrive.com',
-          headers: {
-            accept:     'application/json',
-            user_agent: ::Pipedrive.user_agent,
-            authorization: "Bearer #{access_token}"
-          }
-        }
-      end
-
-      # This method smells of :reek:TooManyStatements
-      def connection(access_token = nil) # :nodoc
-        @connection ||= Faraday.new(faraday_options(access_token)) do |conn|
-          conn.request :url_encoded
-          conn.response :mashify
-          conn.response :json, content_type: /\bjson$/
-          conn.use FaradayMiddleware::ParseJson
-          conn.response :logger, ::Pipedrive.logger if ::Pipedrive.debug
-          conn.adapter Faraday.default_adapter
-        end
-      end
     end
   end
 end
