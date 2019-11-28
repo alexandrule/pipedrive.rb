@@ -91,3 +91,12 @@ require 'pipedrive/file'
 
 # Notes
 require 'pipedrive/note'
+
+# Users
+require 'pipedrive/user'
+
+# Search results
+require 'pipedrive/search_results'
+
+# Pipeline
+require 'pipedrive/pipeline'

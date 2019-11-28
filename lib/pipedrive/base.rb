@@ -15,7 +15,11 @@ module Pipedrive
       params = args.extract_options!
       method = args[0]
       fail 'method param missing' unless method.present?
-      url = build_url(args, params.delete(:fields_to_select))
+      url = build_url(
+        args,
+        fields_to_select: params.delete(:fields_to_select),
+        entity_hard_path: params.delete(:entity_hard_path)
+      )
       begin
         res = connection.__send__(method.to_sym, url, params)
       rescue Errno::ETIMEDOUT
@@ -27,8 +31,11 @@ module Pipedrive
       process_response(res)
     end
 
-    def build_url(args, fields_to_select = nil)
-      url = "/#{entity_name}"
+    def build_url(args, options = {})
+      fields_to_select = options.fetch(:fields_to_select) { nil }
+      entity_path = options.fetch(:entity_hard_path) { entity_name }
+
+      url = "/#{entity_path}"
       url << "/#{args[1]}" if args[1]
       if fields_to_select.is_a?(::Array) && fields_to_select.size > 0
         url << ":(#{fields_to_select.join(',')})"
