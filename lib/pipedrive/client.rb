@@ -62,6 +62,7 @@ module Pipedrive
       )
     rescue OAuth2::Error => e
       puts e if ::Pipedrive.debug
+      e.message
     end
 
     private
